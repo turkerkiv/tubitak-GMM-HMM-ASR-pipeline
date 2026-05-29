@@ -45,13 +45,21 @@ docker run -it \
 - Model: Monophone -> Triphone -> LDA+MLLT -> SAT
 - Result: Mono %89.94 / Tri1 %80.79 / Tri2 %79.91 / SAT %79.78
 
-### EXPERIMENT 4 - Data + model increase (LATEST)
+### EXPERIMENT 4 - Data + model increase
 
 - Data: 40000 train, 1000 dev, 1000 test (train.tsv)
 - LM: small (40000 sentences)
 - Gaussian: 2500/15000
 - Model: Mono -> Tri1 -> Tri2 -> SAT
 - Result: Mono %86.69 / Tri1 %71.39 / Tri2 %67.61 / SAT %65.41
+
+### EXPERIMENT 5 - Larger Gaussian (LATEST)
+- Data: 40000 train, 3000 dev, 3000 test (train.tsv)
+- LM: small (40000 sentences)
+- Gaussian: 4000/40000 (change only on SAT)
+- Model: Mono -> Tri1 -> Tri2 -> SAT
+- Result: Mono %83.63 / Tri1 %67.11 / Tri2 %62.59 / SAT %56.17
+
 ---
 <details>
 <summary>Deprecated experiments (reverted)</summary>
