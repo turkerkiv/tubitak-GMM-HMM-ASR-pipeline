@@ -4,6 +4,8 @@ Our Tubitak 2209-A supported project was about GMM-HMM ASR pipeline to work on m
 
 - Repository has 3 deprecated readmes. I am gonna merge them to make one in the future.
 
+What i did in this pipeline is created a custom dockerfile instead of kaldi's default to not implement every step of library installations every time when i start kaldi. Also did the same thing and automatized the python and training scripts in docker_baslat.sh file.
+
 ## Current progress:
 
 - DENEY 1 - Temel sistem
@@ -31,6 +33,7 @@ Our Tubitak 2209-A supported project was about GMM-HMM ASR pipeline to work on m
     Model   : Mono → Tri1 → Tri2 → SAT
     Sonuç   : Mono %86.69 / Tri1 %71.39 / Tri2 %67.61 / SAT %65.41
 
+```
 - DENEY 5 - Büyük LM + büyük Gaussian (REVERTED - data leakage suspicion on language model)
     Veri    : 40000 train, 1000 dev, 1000 test (train.tsv)
     LM      : büyük (40000 + 120000 validated cümle (trainx2 ve dev ve test çıkarılmamış halde))
@@ -53,3 +56,4 @@ Our Tubitak 2209-A supported project was about GMM-HMM ASR pipeline to work on m
     Gaussian: 4000/40000
     Model   : Mono → Tri1 → Tri2 → SAT
     Sonuç   : ?
+```
