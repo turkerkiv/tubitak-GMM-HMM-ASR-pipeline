@@ -11,7 +11,7 @@ What i did in this pipeline is created a custom dockerfile instead of kaldi's de
 
 - Build image (run once):
 ```
-docker build -t kaldi-turkce -f project-scripts-path/Dockerfile 
+docker build -t kaldi-turkce project-scripts-path
 ```
 
 - Run training pipeline (each time):
