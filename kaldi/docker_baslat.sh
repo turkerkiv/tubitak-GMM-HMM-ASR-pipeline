@@ -48,19 +48,8 @@ utils/prepare_lang.sh \
     /data/kaldi_tr/lang
 
 echo ""
-echo "7. N-gram dil modeli eğitiliyor (tüm validated veri)..."
-# Akustik eğitim metni
+echo "7. N-gram dil modeli eğitiliyor..."
 awk '{$1=""; print $0}' /data/kaldi_tr/tr_train/text > /data/kaldi_tr/local/lm_train.txt
-
-# Validated.tsv den tüm cümleleri ekle (dil modeli için)
-tail -n +2 /data/commonvoice/validated.tsv | \
-    awk -F'\t' '{print $4}' | \
-    tr '[:lower:]' '[:upper:]' | \
-    sed "s/'//g" | \
-    sed 's/"//g' | \
-    sed 's/[^A-ZÇĞİÖŞÜa-zçğışöüA-Z ]//g' >> /data/kaldi_tr/local/lm_train.txt
-
-echo "Dil modeli eğitim verisi: $(wc -l < /data/kaldi_tr/local/lm_train.txt) cümle"
 
 lmplz \
     -o 3 \
