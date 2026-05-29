@@ -1,0 +1,6 @@
+**/venv
+**/clips
+**/*.wav
+**/*.mp3
+**/*.tsv
+**/database
