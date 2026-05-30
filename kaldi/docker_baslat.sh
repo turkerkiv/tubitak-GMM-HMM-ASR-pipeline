@@ -4,8 +4,6 @@ echo "=== Kaldi Türkçe ASR Başlatılıyor ==="
 
 cd /opt/kaldi/egs/commonvoice/s5
 source ./path.sh
-
-# KenLM PATH
 export PATH=/opt/kaldi/tools/kenlm/build/bin:$PATH
 
 NJ=8
@@ -35,7 +33,7 @@ steps/compute_cmvn_stats.sh /data/kaldi_tr/tr_dev   /data/kaldi_tr/log/cmvn_dev 
 steps/compute_cmvn_stats.sh /data/kaldi_tr/tr_test  /data/kaldi_tr/log/cmvn_test  /data/kaldi_tr/mfcc/test
 
 echo ""
-echo "5. Lexicon ve sözlük dosyaları oluşturuluyor..."
+echo "5. Lexicon oluşturuluyor (validated_sentences.tsv)..."
 python3 /data/proje/kaldi_lexicon_olustur.py
 python3 /data/proje/kaldi_dict_hazirla.py
 
@@ -48,8 +46,20 @@ utils/prepare_lang.sh \
     /data/kaldi_tr/lang
 
 echo ""
-echo "7. N-gram dil modeli eğitiliyor..."
-awk '{$1=""; print $0}' /data/kaldi_tr/tr_train/text > /data/kaldi_tr/local/lm_train.txt
+echo "7. N-gram dil modeli eğitiliyor (validated_sentences.tsv, 387k cümle)..."
+tail -n +2 /data/commonvoice/validated_sentences.tsv | \
+    awk -F'\t' '{print $2}' | \
+    python3 -c "
+import sys, re
+for line in sys.stdin:
+    line = line.strip().upper()
+    line = re.sub(r'[^\wÇĞİÖŞÜçğışöü\s]', '', line)
+    line = re.sub(r'\s+', ' ', line).strip()
+    if line:
+        print(line)
+" > /data/kaldi_tr/local/lm_train.txt
+
+echo "Dil modeli eğitim verisi: $(wc -l < /data/kaldi_tr/local/lm_train.txt) cümle"
 
 lmplz \
     -o 3 \
