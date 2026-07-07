@@ -1,4 +1,4 @@
-FROM kaldiasr/kaldi
+FROM kaldiasr/kaldi:gpu-ubuntu20.04-cuda11
 
 # Sistem paketleri
 RUN apt-get update && apt-get install -y \
@@ -11,7 +11,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Python paketleri
-RUN pip install phonemizer --break-system-packages
+RUN pip install phonemizer
+
+RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # KenLM kur
 RUN cd /opt/kaldi/tools && \

@@ -206,6 +206,68 @@ echo "SAT (tri3) WER:"
 cat /data/kaldi_tr/exp/tri3/decode_test/scoring_kaldi/best_wer
 
 echo ""
+echo "19. TDNN için tri3 hizalaması yapılıyor..."
+steps/align_fmllr.sh \
+    --nj $NJ \
+    --cmd "run.pl" \
+    /data/kaldi_tr/tr_train \
+    /data/kaldi_tr/lang \
+    /data/kaldi_tr/exp/tri3 \
+    /data/kaldi_tr/exp/tri3_ali
+
+echo ""
+echo "20. TDNN config oluşturuluyor..."
+rm -rf /data/kaldi_tr/exp/nnet3/tdnn/
+mkdir -p /data/kaldi_tr/exp/nnet3/tdnn/configs
+
+# PDF sayısını tri3 modelinden otomatik al
+NUM_PDFS=$(am-info /data/kaldi_tr/exp/tri3/final.mdl 2>/dev/null | grep "number of pdfs" | awk '{print $NF}')
+echo "tri3 PDF sayısı: $NUM_PDFS"
+
+cat > /data/kaldi_tr/exp/nnet3/tdnn/configs/network.xconfig << XEOF
+input dim=13 name=input
+relu-renorm-layer name=tdnn1 dim=512 input=Append(-2,-1,0,1,2)
+relu-renorm-layer name=tdnn2 dim=512 input=Append(-1,0,1)
+relu-renorm-layer name=tdnn3 dim=512 input=Append(-1,0,1)
+relu-renorm-layer name=tdnn4 dim=512 input=Append(-3,0,3)
+relu-renorm-layer name=tdnn5 dim=512 input=Append(-6,-3,0)
+output-layer name=output dim=$NUM_PDFS input=tdnn5
+XEOF
+
+steps/nnet3/xconfig_to_configs.py \
+    --xconfig-file /data/kaldi_tr/exp/nnet3/tdnn/configs/network.xconfig \
+    --config-dir /data/kaldi_tr/exp/nnet3/tdnn/configs/
+
+echo ""
+echo "21. TDNN eğitiliyor (GPU, 10 epoch)..."
+python3 steps/nnet3/train_dnn.py \
+    --feat.cmvn-opts "--norm-means=false --norm-vars=false" \
+    --trainer.num-epochs 10 \
+    --trainer.optimization.initial-effective-lrate 0.0015 \
+    --trainer.optimization.final-effective-lrate 0.00015 \
+    --trainer.optimization.num-jobs-initial 1 \
+    --trainer.optimization.num-jobs-final 1 \
+    --use-gpu true \
+    --cmd "run.pl" \
+    --feat-dir /data/kaldi_tr/tr_train \
+    --lang /data/kaldi_tr/lang \
+    --ali-dir /data/kaldi_tr/exp/tri3_ali \
+    --dir /data/kaldi_tr/exp/nnet3/tdnn
+
+echo ""
+echo "22. TDNN decode..."
+steps/nnet3/decode.sh \
+    --nj $NJ \
+    --cmd "run.pl" \
+    --use-gpu true \
+    /data/kaldi_tr/exp/tri3/graph \
+    /data/kaldi_tr/tr_test \
+    /data/kaldi_tr/exp/nnet3/tdnn/decode_test
+
+echo "TDNN WER:"
+cat /data/kaldi_tr/exp/nnet3/tdnn/decode_test/scoring_kaldi/best_wer
+
+echo ""
 echo "=== TÜM SONUÇLAR ==="
 echo "Monophone WER:"
 cat /data/kaldi_tr/exp/mono/decode_test/scoring_kaldi/best_wer
@@ -215,6 +277,8 @@ echo "LDA+MLLT (tri2) WER:"
 cat /data/kaldi_tr/exp/tri2/decode_test/scoring_kaldi/best_wer
 echo "SAT (tri3) WER:"
 cat /data/kaldi_tr/exp/tri3/decode_test/scoring_kaldi/best_wer
+echo "TDNN WER:"
+cat /data/kaldi_tr/exp/nnet3/tdnn/decode_test/scoring_kaldi/best_wer
 
 echo ""
 echo "=== Hazır! Bash'e düşülüyor... ==="
