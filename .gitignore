@@ -4,3 +4,8 @@
 **/*.mp3
 **/*.tsv
 **/database
+**/models
+**/rpi_paket
+**/tanima
+**/toplu_tanima
+**/vosk_model_tr
